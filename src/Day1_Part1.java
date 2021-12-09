@@ -3,16 +3,8 @@ import java.util.*;
 
 public class Day1_Part1 {
     public static void main(String[] args) {
-        List<String> input = new ArrayList<>();
+        List<String> input = new importFileLines().getInput("Day1.txt");
         List<Integer> sums = new ArrayList<>();
-
-        try (Scanner scanner = new Scanner(Paths.get("Day1.txt"))) {
-            while (scanner.hasNextLine()) {
-                input.add(scanner.nextLine());
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
 
         int counter = 0;
         int counter2 = 0;
