@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 public class Day3_Part1 {
+
     public static void main(String[] args) {
         System.out.println(getOxygenRating());
         System.out.println(getCarbonDioxideRating());
