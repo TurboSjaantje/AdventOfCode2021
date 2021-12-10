@@ -1,12 +1,14 @@
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class Day6_part1 {
     public static void main(String[] args) {
+        long start = System.nanoTime();
         int counter = 0;
-        ArrayList<String> input = getInput("test.txt");
+        ArrayList<String> input = getInput("Day6.txt");
         HashMap<Integer, Double> fish = new HashMap<>();
         fish.put(0, 0.0);
         fish.put(1, 0.0);
@@ -21,14 +23,11 @@ public class Day6_part1 {
             fish.replace(Integer.valueOf(string), fish.get(Integer.valueOf(string)) + 1);
         }
         for (int i = 0; i < 256; i++) {
-            System.out.println(i);
             double amountOf0 = fish.get(0);
             for (int j = 1; j < 9; j++) {
-                if (j != 0) {
-                    double amount = fish.get(j);
-                    fish.replace(j - 1, amount);
-                    fish.replace(j, 0.0);
-                }
+                double amount = fish.get(j);
+                fish.replace(j - 1, amount);
+                fish.replace(j, 0.0);
             }
             fish.replace(6, fish.get(6) + amountOf0);
             fish.replace(8, amountOf0);
@@ -36,14 +35,14 @@ public class Day6_part1 {
             for (int item : fish.keySet()) {
                 counter += fish.get(item);
             }
-            System.out.println(counter);
         }
         long answer = 0;
         for (Integer item : fish.keySet()) {
-            System.out.println(fish.get(item));
             answer += fish.get(item);
         }
         System.out.println("answer: " + answer);
+        long end = System.nanoTime();
+        System.out.println("Time: " + ((end - start) / (double) 1000000));
     }
 
     public static ArrayList<String> getInput(String file) {
@@ -51,9 +50,7 @@ public class Day6_part1 {
         try (Scanner scanner = new Scanner(Paths.get(file))) {
             while (scanner.hasNextLine()) {
                 String[] numbers = scanner.nextLine().split(",");
-                for (String string : numbers) {
-                    tempList.add(string);
-                }
+                tempList.addAll(Arrays.asList(numbers));
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
