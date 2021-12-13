@@ -3,8 +3,9 @@ import java.util.ArrayList;
 public class Day12_Part1 {
     public static void main(String[] args) {
         long start = System.nanoTime();
-        ArrayList<String> input = new importFileLines().getInput("test.txt");
+        ArrayList<String> input = new importFileLines().getInput("Day12.txt");
         ArrayList<String> paths = new ArrayList<>();
+
         for (String line : input) {
             if (line.split("-")[0].contains("start")) {
                 paths.add("start," + line.split("-")[1]);
@@ -12,9 +13,11 @@ public class Day12_Part1 {
                 paths.add("start," + line.split("-")[0]);
             }
         }
+
         for (String path : paths) {
             System.out.println(path);
         }
+
         System.out.println();
         while (true) {
             boolean hasEnd = true;
@@ -25,6 +28,7 @@ public class Day12_Part1 {
                 boolean smallCaveTwice = false;
                 String[] chars = path.split(",");
                 String lastChar = chars[chars.length - 1];
+//                System.out.println(lastChar + "\n");
                 for (int j = 0; j < chars.length; j++) {
                     if (chars[j].equals(chars[j].toLowerCase())) {
                         for (int k = 0; k < chars.length; k++) {
@@ -58,6 +62,10 @@ public class Day12_Part1 {
                     }
                 }
                 paths.remove(i);
+//                for (String path1 : paths) {
+//                    System.out.println(path1);
+//                }
+//                System.out.println();
             }
             if (hasEnd) break;
         }
