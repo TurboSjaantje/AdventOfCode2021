@@ -28,7 +28,6 @@ public class Day12_Part1 {
                 boolean smallCaveTwice = false;
                 String[] chars = path.split(",");
                 String lastChar = chars[chars.length - 1];
-//                System.out.println(lastChar + "\n");
                 for (int j = 0; j < chars.length; j++) {
                     if (chars[j].equals(chars[j].toLowerCase())) {
                         for (int k = 0; k < chars.length; k++) {
@@ -62,10 +61,6 @@ public class Day12_Part1 {
                     }
                 }
                 paths.remove(i);
-//                for (String path1 : paths) {
-//                    System.out.println(path1);
-//                }
-//                System.out.println();
             }
             if (hasEnd) break;
         }
@@ -74,6 +69,9 @@ public class Day12_Part1 {
             if (!(path.substring(path.length() - 3, path.length()).equals("end"))) {
                 paths.remove(i);
             }
+        }
+        for (String line : paths) {
+            System.out.println(line);
         }
         System.out.println("Amount of paths: " + paths.size());
         long end = System.nanoTime();

@@ -60,7 +60,7 @@ public class Day13_Part1 {
             }
         }
 
-
+        print2dArray(paper);
     }
 
     public static void print2dArray(int[][] paper) {
