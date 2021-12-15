@@ -1,66 +1,109 @@
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 
 public class test {
     public static void main(String[] args) {
+
         ArrayList<String> input = new importFileLines().getInput("test.txt");
-        ArrayList<String> steps = new ArrayList<>();
+        int[][] field = new int[input.size()][input.get(0).length()];
+        StringBuilder path = new StringBuilder("0,0");
 
-        HashMap<String, Long> letterCount = new HashMap<>();
-        HashMap<String, Long> pairCount = new HashMap<>();
-
-        char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
-
-        for (String line : input) {
-            if (line.contains(" -> ")) steps.add(line.split(" -> ")[0] + "-" + line.split(" -> ")[1]);
-        }
-
-        for (char c : alphabet) {
-            letterCount.put(String.valueOf(c), 0L);
-        }
-
-        for (int i = 0; i < input.get(0).length() - 1; i++) {
-            String first = input.get(0);
-            pairCount.put(first.charAt(i) + "" + first.charAt(i + 1), 1L);
-        }
-
-        for (String charr : input.get(0).split("")) {
-            letterCount.replace(charr, letterCount.get(charr) + 1);
-        }
-
-        for (int i = 0; i < 40; i++) {
-            System.out.println(i);
-            HashMap<String, Long> tempPairCount = new HashMap<>(pairCount);
-            for (String pair : tempPairCount.keySet()) {
-                if (tempPairCount.get(pair) != 0) {
-                    for (int j = 0; j < tempPairCount.get(pair); j++) {
-                        for (String step : steps) {
-                            if (step.contains(pair)) {
-                                if (pairCount.containsKey(pair.charAt(0) + "" + step.split("-")[1])) {
-                                    pairCount.replace(pair.charAt(0) + "" + step.split("-")[1], pairCount.get(pair.charAt(0) + "" + step.split("-")[1]) + 1);
-                                } else {
-                                    pairCount.put(pair.charAt(0) + "" + step.split("-")[1], 1L);
-                                }
-                                if (pairCount.containsKey(step.split("-")[1] + "" + pair.charAt(1))) {
-                                    pairCount.replace(step.split("-")[1] + "" + pair.charAt(1), pairCount.get(step.split("-")[1] + "" + pair.charAt(1)) + 1);
-                                } else {
-                                    pairCount.put(step.split("-")[1] + "" + pair.charAt(1), 1L);
-                                }
-                                letterCount.replace(step.split("-")[1], letterCount.get(step.split("-")[1]) + 1);
-                                pairCount.replace(pair, pairCount.get(pair) - 1);
-                            }
-                        }
-                    }
-                }
+        for (int i = 0; i < input.size(); i++) {
+            for (int j = 0; j < input.get(i).length(); j++) {
+                int value = Integer.parseInt(String.valueOf(input.get(i).charAt(j)));
+                field[i][j] = value;
             }
         }
 
-        ArrayList<Long> list = new ArrayList<>();
-        for (long value : letterCount.values()) {
-            if (value != 0) list.add(value);
+        while (true) {
+            String pathh = path.toString();
+            String[] coords = pathh.split(";");
+            String coordd = coords[coords.length - 1];
+            int y = Integer.parseInt(coordd.split(",")[0]);
+            int x = Integer.parseInt(coordd.split(",")[1]);
+            if (y >= field.length - 1 && x >= field[0].length - 1) break;
+            HashMap<String, Double> coordCosts = new HashMap<>();
+
+            if ((y + 1) < field.length)
+                coordCosts.put(((y + 1) + "," + x), distanceToEnd(y + 1, x, field) + field[y + 1][x]);
+            if ((y - 1) >= 0)
+                coordCosts.put(((y - 1) + "," + x), distanceToEnd(y - 1, x, field) + field[y - 1][x]);
+            if ((x + 1) < field[0].length)
+                coordCosts.put((y + "," + (x + 1)), distanceToEnd(y, x + 1, field) + field[y][x + 1]);
+            if ((x - 1) >= 0)
+                coordCosts.put((y + "," + (x - 1)), distanceToEnd(y, x - 1, field) + field[y][x - 1]);
+
+            List<Double> costs = new ArrayList<>(coordCosts.values());
+            costs.sort(Comparator.naturalOrder());
+            if (costs.size() > 1) {
+                HashMap<String, Double> coordCosts3 = new HashMap<>();
+                for (String coord : coordCosts.keySet()) {
+                    HashMap<String, Double> coordCosts2 = new HashMap<>();
+                    int y2 = Integer.parseInt(coord.split(",")[0]);
+                    int x2 = Integer.parseInt(coord.split(",")[1]);
+
+                    if ((y2 + 1) < field.length)
+                        coordCosts2.put(((y2 + 1) + "," + x2), distanceToEnd(y2 + 1, x2, field) + field[y2 + 1][x2]);
+                    if ((y2 - 1) >= 0)
+                        coordCosts2.put(((y2 - 1) + "," + x2), distanceToEnd(y2 - 1, x2, field) + field[y2 - 1][x2]);
+                    if ((x2 + 1) < field[0].length)
+                        coordCosts2.put((y2 + "," + (x2 + 1)), distanceToEnd(y2, x2 + 1, field) + field[y2][x2 + 1]);
+                    if ((x2 - 1) >= 0)
+                        coordCosts2.put((y2 + "," + (x2 - 1)), distanceToEnd(y2, x2 - 1, field) + field[y2][x2 - 1]);
+
+                    List<Double> costs2 = new ArrayList<>(coordCosts2.values());
+                    costs2.sort(Comparator.naturalOrder());
+                    coordCosts3.put(coord, costs2.get(0));
+                }
+                for (String key : coordCosts3.keySet()) {
+                    coordCosts.replace(key, coordCosts.get(key) + coordCosts3.get(key));
+                }
+                String cheapestCoord = "";
+                for (String key : coordCosts.keySet()) {
+                    cheapestCoord = key;
+                    break;
+                }
+                for (String key : coordCosts.keySet()) {
+                    if (coordCosts.get(key) < coordCosts.get(cheapestCoord)) cheapestCoord = key;
+                }
+                path.append(";").append(cheapestCoord);
+            } else {
+                for (String key : coordCosts.keySet()) {
+                    if (Objects.equals(coordCosts.get(key), costs.get(0))) {
+                        path.append(";").append(key);
+                        break;
+                    }
+                }
+            }
+
+            int cost = 0;
+            for (String position : path.toString().split(";")) {
+                cost += field[Integer.parseInt(position.split(",")[0])][Integer.parseInt(position.split(",")[1])];
+            }
+
+            System.out.println("Cost: " + (cost - field[0][0]));
+
         }
-        list.sort(Comparator.reverseOrder());
-        System.out.println("Answer: " + (list.get(0) - list.get(list.size() -1) ) );
+
+        for (String item : path.toString().split(";")) {
+            System.out.println(item);
+        }
+
+        int cost = 0;
+        for (String position : path.toString().split(";")) {
+            cost += field[Integer.parseInt(position.split(",")[0])][Integer.parseInt(position.split(",")[1])];
+        }
+
+        System.out.println("Cost: " + (cost - field[0][0]));
+
     }
+
+    public static double distanceToEnd(int y, int x, int[][] field) {
+        int distance = 0;
+
+        int dY = (field.length - 1) - y;
+        int dX = (field[0].length - 1) - x;
+
+        return java.lang.Math.sqrt((double) ((dY * dY) + (dX * dX)));
+    }
+
 }

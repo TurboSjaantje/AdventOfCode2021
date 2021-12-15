@@ -1,91 +1,117 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Day15_Part1 {
     public static void main(String[] args) {
 
-        ArrayList<String> input = new importFileLines().getInput("Day15.txt");
-        ArrayList<String> paths = new ArrayList<>();
-        ArrayList<Integer> risks = new ArrayList<>();
-        int[][] field = new int[input.size()][input.get(0).length()];
-        StringBuilder path = new StringBuilder("0,0");
+        ArrayList<String> input = new importFileLines().getInput("test.txt");
+        ArrayList<String> unvisitedNodes = new ArrayList<>();
+        ArrayList<String> distances = new ArrayList<>();
 
         for (int i = 0; i < input.size(); i++) {
-            for (int j = 0; j < input.get(i).length(); j++) {
-                int value = Integer.parseInt(String.valueOf(input.get(i).charAt(j)));
-                field[i][j] = value;
+            for (int j = 0; j < input.get(i).split("").length; j++) {
+                if (i == 0 && j == 0) {
+                    unvisitedNodes.add(i + "," + j + ":" + 0);
+                } else {
+                    unvisitedNodes.add(i + "," + j + ":" + input.get(0).charAt(j));
+                }
             }
         }
+
+        distances.add(unvisitedNodes.get(0));
+        unvisitedNodes.remove(0);
+
+        for (String node : unvisitedNodes) {
+            distances.add(node.split(":")[0] + ":" + 999999999);
+        }
+
+        String node = distances.get(0);
 
         while (true) {
-            String pathh = path.toString();
-            String[] coords = pathh.split(";");
-            String coordd = coords[coords.length - 1];
-            int y = Integer.parseInt(coordd.split(",")[0]);
-            int x = Integer.parseInt(coordd.split(",")[1]);
-            if (y == field.length - 1 && x == field[0].length - 1) break;
-            HashMap<String, Double> coordCosts = new HashMap<>();
-            if ((y + 1) < field.length)
-                coordCosts.put(((y + 1) + "," + x), distanceToEnd(y + 1, x, field) + field[y + 1][x]);
-            if ((x + 1) < field[0].length)
-                coordCosts.put((y + "," + (x + 1)), distanceToEnd(y, x + 1, field) + field[y][x + 1]);
-            List<Double> costs = new ArrayList<>(coordCosts.values());
-            costs.sort(Comparator.naturalOrder());
-            if (costs.size() > 1) {
-                HashMap<String, Double> coordCosts3 = new HashMap<>();
-                for (String coord : coordCosts.keySet()) {
-                    HashMap<String, Double> coordCosts2 = new HashMap<>();
-                    int y2 = Integer.parseInt(coord.split(",")[0]);
-                    int x2 = Integer.parseInt(coord.split(",")[1]);
-                    if ((y2 + 1) < field.length)
-                        coordCosts2.put(((y2 + 1) + "," + x2), distanceToEnd(y2 + 1, x2, field) + field[y2 + 1][x2]);
-                    if ((x2 + 1) < field[0].length)
-                        coordCosts2.put((y2 + "," + (x2 + 1)), distanceToEnd(y2, x2 + 1, field) + field[y2][x2 + 1]);
-                    List<Double> costs2 = new ArrayList<>(coordCosts2.values());
-                    costs2.sort(Comparator.naturalOrder());
-                    coordCosts3.put(coord, costs2.get(0));
+
+            if (unvisitedNodes.size() == 0) break;
+
+            System.out.println(node + "\n");
+
+            //get nodes around the node
+            int y = Integer.parseInt(node.split(":")[0].split(",")[0]);
+            int x = Integer.parseInt(node.split(":")[0].split(",")[1]);
+
+            String above = "";
+            String below = "";
+            String left = "";
+            String right = "";
+
+            for (String nodeAround : unvisitedNodes) {
+                if (y - 1 >= 0) if (nodeAround.split(":")[0].equals((y - 1) + "," + x)) above = nodeAround;
+                if (y + 1 < input.size())
+                    if (nodeAround.split(":")[0].equals((y + 1) + "," + x)) below = nodeAround;
+                if (x - 1 >= 0) if (nodeAround.split(":")[0].equals(y + "," + (x - 1))) left = nodeAround;
+                if (x + 1 < input.get(0).length())
+                    if (nodeAround.split(":")[0].equals(y + "," + (x + 1))) right = nodeAround;
+            }
+
+            //calculate their distance with (lastNode + cost)
+            int aboveDistance = 0;
+            int belowDistance = 0;
+            int leftDistance = 0;
+            int rightDistance = 0;
+
+            if (!above.isEmpty())
+                aboveDistance = Integer.parseInt(node.split(":")[1]) + Integer.parseInt(above.split(":")[1]);
+            if (!below.isEmpty())
+                belowDistance = Integer.parseInt(node.split(":")[1]) + Integer.parseInt(below.split(":")[1]);
+            if (!left.isEmpty())
+                leftDistance = Integer.parseInt(node.split(":")[1]) + Integer.parseInt(left.split(":")[1]);
+            if (!right.isEmpty())
+                rightDistance = Integer.parseInt(node.split(":")[1]) + Integer.parseInt(right.split(":")[1]);
+
+            //update their distance if it is smaller than the previous one
+            for (String distanceNode : distances) {
+                if (distanceNode.split(":")[0].equals(above.split(":")[0]) && Integer.parseInt(distanceNode.split(":")[1]) > aboveDistance)
+                    distances.set(distances.indexOf(distanceNode), distanceNode.split(":")[0] + ":" + aboveDistance);
+                if (distanceNode.split(":")[0].equals(below.split(":")[0]) && Integer.parseInt(distanceNode.split(":")[1]) > belowDistance)
+                    distances.set(distances.indexOf(distanceNode), distanceNode.split(":")[0] + ":" + belowDistance);
+                if (distanceNode.split(":")[0].equals(left.split(":")[0]) && Integer.parseInt(distanceNode.split(":")[1]) > leftDistance)
+                    distances.set(distances.indexOf(distanceNode), distanceNode.split(":")[0] + ":" + leftDistance);
+                if (distanceNode.split(":")[0].equals(right.split(":")[0]) && Integer.parseInt(distanceNode.split(":")[1]) > rightDistance)
+                    distances.set(distances.indexOf(distanceNode), distanceNode.split(":")[0] + ":" + rightDistance);
+            }
+
+            //print the lastCheckedNode and ones around
+            System.out.println(node + ":\n-" + above + " -> " + aboveDistance + "\n-" + below + " -> " + belowDistance + "\n-" + left + " -> " + leftDistance + "\n-" + right + " -> " + rightDistance + "\n");
+
+            //remove last checked node
+            if (!node.equals("0,0:0")) {
+                for (int i = 0; i < unvisitedNodes.size(); i++) {
+                    String removeNode = unvisitedNodes.get(i);
+                    if (removeNode.split(":")[0].equals(node.split(":")[0]))
+                        unvisitedNodes.remove(unvisitedNodes.indexOf(removeNode));
                 }
-                for (String key : coordCosts3.keySet()) {
-                    coordCosts.replace(key, coordCosts.get(key) + coordCosts3.get(key));
-                }
-                String cheapestCoord = "";
-                for (String key : coordCosts.keySet()) {
-                    cheapestCoord = key;
-                    break;
-                }
-                for (String key : coordCosts.keySet()) {
-                    if (coordCosts.get(key) < coordCosts.get(cheapestCoord)) cheapestCoord = key;
-                }
-                path.append(";").append(cheapestCoord);
-            } else {
-                for (String key : coordCosts.keySet()) {
-                    if (Objects.equals(coordCosts.get(key), costs.get(0))) {
-                        path.append(";").append(key);
-                        break;
-                    }
-                }
+            }
+
+            //set nextNode
+            HashMap<String, Integer> costs = new HashMap<>();
+            if (!above.isEmpty()) costs.put(above, Integer.parseInt(above.split(":")[1]));
+            if (!below.isEmpty()) costs.put(below, Integer.parseInt(below.split(":")[1]));
+            if (!left.isEmpty()) costs.put(left, Integer.parseInt(left.split(":")[1]));
+            if (!right.isEmpty()) costs.put(right, Integer.parseInt(right.split(":")[1]));
+
+            node = "";
+            for (String key : costs.keySet()) {
+                node = key;
+                break;
+            }
+
+            for (String key : costs.keySet()) {
+                if (costs.get(key) < costs.get(node)) node = key;
+            }
+
+            for (String getCorrectDistance : distances) {
+                if (node.split(":")[0].equals(getCorrectDistance.split(":")[0])) node = getCorrectDistance;
             }
         }
 
-        for (String item : path.toString().split(";")) {
-            System.out.println(item);
-        }
-
-        int cost = 0;
-        for (String position : path.toString().split(";")) {
-                cost += field[Integer.parseInt(position.split(",")[0])][Integer.parseInt(position.split(",")[1])];
-        }
-
-        System.out.println("Cost: " + (cost - field[0][0]));
-
-    }
-
-    public static double distanceToEnd(int y, int x, int[][] field) {
-        int distance = 0;
-
-        int dY = (field.length - 1) - y;
-        int dX = (field[0].length - 1) - x;
-
-        return java.lang.Math.sqrt((double) ((dY * dY) + (dX * dX)));
     }
 
 }
