@@ -29,7 +29,6 @@ public class Day13_Part1 {
             StringBuilder builder = new StringBuilder(instruction1);
             builder.delete(0, 11);
             String instruction = builder.toString();
-            System.out.println(instruction);
 
             if (instruction.split("=")[0].equals("y")) {
                 int index = Integer.parseInt(instruction.split("=")[1]);
@@ -59,14 +58,17 @@ public class Day13_Part1 {
                 paper = newGrid;
             }
         }
-
         print2dArray(paper);
     }
 
     public static void print2dArray(int[][] paper) {
         for (int i = 0; i < paper.length; i++) {
             for (int j = 0; j < paper[i].length; j++) {
-                System.out.print(paper[i][j]);
+                if (paper[i][j] == 1) {
+                    System.out.print("[#]");
+                } else {
+                    System.out.print("   ");
+                }
             }
             System.out.println();
         }

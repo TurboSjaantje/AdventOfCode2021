@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
-public class test {
+public class Day14_Part1 {
     public static void main(String[] args) {
         ArrayList<String> input = new importFileLines().getInput("test.txt");
         ArrayList<String> steps = new ArrayList<>();
